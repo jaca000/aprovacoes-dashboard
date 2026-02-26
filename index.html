@@ -1,11 +1,490 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="pt-PT">
 <head>
-  <meta charset="UTF-8">
-  <title>Aprovações</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aprovações — Dashboard</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#111a2e; --line:rgba(255,255,255,.10);
+      --txt:#e8eefc; --mut:#a9b7da; --ok:#27c48a; --bad:#ff5c7a; --pend:#5aa7ff;
+      --btn:#1c2b4d; --btn2:#23365f;
+      --r:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: radial-gradient(1200px 800px at 20% 0%, #132146 0%, var(--bg) 55%);
+      color:var(--txt);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.7);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:18px}
+    .row{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    h1{margin:0; font-size:18px; letter-spacing:.2px}
+    .sub{color:var(--mut); font-size:13px}
+    .btn{
+      background:var(--btn); border:1px solid var(--line); color:var(--txt);
+      padding:10px 12px; border-radius:12px; cursor:pointer;
+      transition:.15s transform, .15s background;
+      font-weight:600;
+    }
+    .btn:hover{transform:translateY(-1px); background:var(--btn2)}
+    .btn.primary{background:#2a52ff; border-color:rgba(255,255,255,.18)}
+    .btn.primary:hover{background:#2347df}
+    main{padding:18px 18px 40px}
+    .grid{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:rgba(17,26,46,.78);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:14px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.25);
+    }
+    .card h2{margin:0 0 10px; font-size:15px}
+    label{display:block; font-size:12px; color:var(--mut); margin:10px 0 6px}
+    input, textarea{
+      width:100%; background:rgba(255,255,255,.04); color:var(--txt);
+      border:1px solid var(--line); border-radius:12px; padding:10px 12px;
+      outline:none;
+    }
+    textarea{min-height:90px; resize:vertical}
+    .mini{font-size:12px; color:var(--mut); line-height:1.35}
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:5px 10px; border-radius:999px; font-size:12px; font-weight:700;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+    }
+    .pill.ok{color:var(--ok)}
+    .pill.bad{color:var(--bad)}
+    .pill.pend{color:var(--pend)}
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    th,td{padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top}
+    th{color:var(--mut); text-align:left; font-weight:700}
+    .link{color:#9ec3ff; text-decoration:none}
+    .link:hover{text-decoration:underline}
+    .split{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .k{color:var(--mut); font-size:12px}
+    .v{font-weight:700}
+    .hr{height:1px; background:var(--line); margin:12px 0}
+    .toast{
+      position:fixed; right:16px; bottom:16px; max-width:420px;
+      background:rgba(17,26,46,.92); border:1px solid var(--line);
+      border-radius:14px; padding:12px 14px; box-shadow:0 15px 40px rgba(0,0,0,.4);
+      display:none;
+    }
+    .toast.show{display:block}
+  </style>
 </head>
 <body>
-  <h1>App Aprovações Monte do Pasto</h1>
-  <p>Deploy inicial OK.</p>
+<header>
+  <div class="wrap">
+    <div class="row">
+      <div>
+        <h1>Dashboard de Aprovações</h1>
+        <div class="sub" id="who">Não autenticado</div>
+      </div>
+      <div class="split">
+        <button class="btn" id="btnRefresh" disabled>Atualizar</button>
+        <button class="btn primary" id="btnLogin">Entrar</button>
+        <button class="btn" id="btnLogout" disabled>Sair</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <section class="card">
+      <h2>Criar pedido</h2>
+
+      <label>Título</label>
+      <input id="fTitle" placeholder="Ex.: Compra de material / Pedido X" />
+
+      <label>Descrição</label>
+      <textarea id="fDesc" placeholder="Explica o pedido..."></textarea>
+
+      <label>E-mails aprovadores (separados por ; )</label>
+      <input id="fApprovers" placeholder="ex.: a@empresa.pt;b@empresa.pt" />
+
+      <label>Anexo (opcional)</label>
+      <input id="fFile" type="file" />
+
+      <div class="mini" style="margin-top:10px">
+        O anexo será guardado na biblioteca do SharePoint e o pedido fica com um link para abrir/transferir.
+      </div>
+
+      <div class="hr"></div>
+      <div class="split">
+        <button class="btn primary" id="btnCreate" disabled>Criar pedido</button>
+        <span class="mini" id="createHint">Faz login para criar pedidos.</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Pedidos</h2>
+      <div class="mini" id="listHint">Lista vazia (ou ainda não carregada).</div>
+      <div style="overflow:auto; margin-top:10px">
+        <table id="tbl" style="display:none">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Estado</th>
+              <th>Anexo</th>
+              <th>Respostas</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:14px">
+    <h2>Detalhe</h2>
+    <div class="mini" id="detailEmpty">Clica num pedido na lista para ver detalhes.</div>
+    <div id="detail" style="display:none"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- MSAL (Microsoft Authentication Library) -->
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.26.1/lib/msal-browser.min.js"></script>
+<script>
+/* ==========================
+   CONFIG — EDITA ISTO
+   ========================== */
+const CONFIG = {
+  tenantId: "ee417351-ea90-41e0-9147-5ea6ab38ea49",
+  clientId: "6cfd4e0d-e194-4fe3-81f4-796c5b06daa7",
+  redirectUri: "https://jaca000.github.io/aprovacoes-dashboard",
+
+  // SharePoint
+  spHostname: "montedopastopt.sharepoint.com",   // ex.: "contoso.sharepoint.com"
+  spSitePath: "/sites/SEU_SITE",                 // ex.: "/sites/Financeiro"  (tem de existir)
+  spListName: "PedidosAprovacao",                // nome EXACTO da lista
+
+  // Biblioteca onde guardamos anexos (por defeito usa a “Documentos” do site)
+  // A app cria uma pasta "Aprovacoes/<ID-do-item>/"
+  attachmentsRootFolder: "Aprovacoes"
+};
+
+/* ==========================
+   UI helpers
+   ========================== */
+const $ = (id) => document.getElementById(id);
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 3200);
+}
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function normEmails(s){
+  return String(s||"")
+    .split(";")
+    .map(x=>x.trim())
+    .filter(Boolean)
+    .join(";");
+}
+function statusPill(status){
+  const s = String(status||"").toLowerCase();
+  if(s.includes("aprov")) return `<span class="pill ok">Aprovado</span>`;
+  if(s.includes("rejeit")) return `<span class="pill bad">Rejeitado</span>`;
+  return `<span class="pill pend">Pendente</span>`;
+}
+
+/* ==========================
+   MSAL setup
+   ========================== */
+const msalConfig = {
+  auth: {
+    clientId: CONFIG.clientId,
+    authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`,
+    redirectUri: CONFIG.redirectUri
+  },
+  cache: { cacheLocation: "localStorage" }
+};
+const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+// Scopes (delegated)
+const GRAPH_SCOPES = ["User.Read", "Sites.ReadWrite.All", "Files.ReadWrite.All"];
+
+let account = null;
+let siteId = null;
+let listId = null;
+let driveId = null; // biblioteca “Documentos” (drive do site)
+
+async function getToken(){
+  if(!account) throw new Error("Sem sessão.");
+  try{
+    const res = await msalInstance.acquireTokenSilent({ account, scopes: GRAPH_SCOPES });
+    return res.accessToken;
+  }catch(e){
+    const res = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES });
+    return res.accessToken;
+  }
+}
+
+async function graph(url, options={}){
+  const token = await getToken();
+  const res = await fetch("https://graph.microsoft.com/v1.0" + url, {
+    ...options,
+    headers: {
+      "Authorization": "Bearer " + token,
+      "Content-Type": options.body instanceof FormData ? undefined : "application/json",
+      ...(options.headers || {})
+    }
+  });
+  if(!res.ok){
+    const txt = await res.text().catch(()=> "");
+    throw new Error(`Graph ${res.status}: ${txt || res.statusText}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+/* ==========================
+   Resolve IDs (site/list/drive)
+   ========================== */
+async function ensureContext(){
+  if(siteId && listId && driveId) return;
+
+  // 1) Site
+  const site = await graph(`/sites/${CONFIG.spHostname}:${CONFIG.spSitePath}?$select=id,displayName,webUrl`);
+  siteId = site.id;
+
+  // 2) List
+  const lists = await graph(`/sites/${siteId}/lists?$select=id,displayName`);
+  const found = (lists.value || []).find(l => String(l.displayName).toLowerCase() === String(CONFIG.spListName).toLowerCase());
+  if(!found) throw new Error(`Não encontrei a lista "${CONFIG.spListName}". Confirma o nome.`);
+  listId = found.id;
+
+  // 3) Drive do site (normalmente "Documentos")
+  const drive = await graph(`/sites/${siteId}/drive?$select=id,webUrl`);
+  driveId = drive.id;
+}
+
+/* ==========================
+   CRUD: List items + upload
+   ========================== */
+async function loadItems(){
+  await ensureContext();
+
+  // buscamos campos (ajusta se mudares nomes de colunas)
+  const r = await graph(`/sites/${siteId}/lists/${listId}/items?expand=fields&$top=200&$orderby=createdDateTime desc`);
+  const items = (r.value || []).map(x => ({
+    id: x.id,
+    fields: x.fields || {},
+    created: x.createdDateTime
+  }));
+
+  renderTable(items);
+  window.__items = items;
+}
+
+function renderTable(items){
+  const tbody = $("tbody");
+  tbody.innerHTML = "";
+  if(!items.length){
+    $("tbl").style.display = "none";
+    $("listHint").textContent = "Sem pedidos ainda.";
+    return;
+  }
+  $("listHint").textContent = `${items.length} pedido(s) carregado(s).`;
+  $("tbl").style.display = "table";
+
+  for(const it of items){
+    const f = it.fields;
+    const title = f.Title || "";
+    const estado = f.EstadoGlobal || "Pendente";
+    const anexoUrl = f.AnexoUrl || f.AnexoLink || "";
+    const respostas = f.Respostas || "";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${esc(it.id)}</td>
+      <td><a class="link" href="#" data-id="${esc(it.id)}">${esc(title)}</a></td>
+      <td>${statusPill(estado)}</td>
+      <td>${anexoUrl ? `<a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a>` : `<span class="k">—</span>`}</td>
+      <td>${respostas ? `<span class="k">${esc(String(respostas).slice(0,80))}${String(respostas).length>80?"…":""}</span>` : `<span class="k">—</span>`}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  tbody.querySelectorAll("a[data-id]").forEach(a=>{
+    a.addEventListener("click", (e)=>{
+      e.preventDefault();
+      const id = a.getAttribute("data-id");
+      const it = (window.__items || []).find(x => x.id === id);
+      if(it) renderDetail(it);
+    });
+  });
+}
+
+function renderDetail(it){
+  const f = it.fields;
+  $("detailEmpty").style.display = "none";
+  $("detail").style.display = "block";
+
+  const anexoUrl = f.AnexoUrl || f.AnexoLink || "";
+  const aprov = f.EmailsAprovadores || "";
+  const respostas = f.Respostas || "";
+  const desc = f.Descricao || "";
+
+  $("detail").innerHTML = `
+    <div class="split">
+      <div><span class="k">ID</span> <span class="v">${esc(it.id)}</span></div>
+      <div><span class="k">Estado</span> ${statusPill(f.EstadoGlobal || "Pendente")}</div>
+      <div><span class="k">Criado por</span> <span class="v">${esc(f.CriadoPorEmail || "")}</span></div>
+      ${anexoUrl ? `<div><a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a></div>` : ""}
+    </div>
+    <div class="hr"></div>
+    <div><span class="k">Título</span><div class="v" style="margin-top:4px">${esc(f.Title || "")}</div></div>
+    <div style="margin-top:10px"><span class="k">Descrição</span><div style="margin-top:6px; white-space:pre-wrap">${esc(desc)}</div></div>
+    <div style="margin-top:10px"><span class="k">Aprovadores</span><div style="margin-top:6px; white-space:pre-wrap">${esc(aprov)}</div></div>
+    <div style="margin-top:10px"><span class="k">Respostas</span><div style="margin-top:6px; white-space:pre-wrap">${esc(respostas)}</div></div>
+  `;
+}
+
+async function createItemAndUpload(){
+  await ensureContext();
+
+  const title = $("fTitle").value.trim();
+  const desc  = $("fDesc").value.trim();
+  const approvers = normEmails($("fApprovers").value);
+
+  if(!title) return toast("Falta o Título.");
+  if(!approvers) return toast("Faltam os e-mails dos aprovadores (separados por ; ).");
+
+  // user info
+  const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
+  const myMail = me.mail || me.userPrincipalName || "";
+
+  // 1) criar item na lista
+  const created = await graph(`/sites/${siteId}/lists/${listId}/items`, {
+    method: "POST",
+    body: JSON.stringify({
+      fields: {
+        Title: title,
+        Descricao: desc,
+        EmailsAprovadores: approvers,
+        EstadoGlobal: "Pendente",
+        CriadoPorEmail: myMail,
+        CriadoPorNome: me.displayName || ""
+      }
+    })
+  });
+
+  const itemId = created.id;
+  let anexoWebUrl = "";
+
+  // 2) upload (se existir ficheiro)
+  const file = $("fFile").files && $("fFile").files[0];
+  if(file){
+    // cria pasta Aprovacoes/<itemId> implicitamente via upload path
+    const safeName = file.name.replace(/[^\w.\- ()]/g, "_");
+    const uploadPath = `${CONFIG.attachmentsRootFolder}/${itemId}/${safeName}`;
+
+    const up = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(uploadPath)}:/content`, {
+      method: "PUT",
+      headers: { "Authorization": "Bearer " + await getToken() },
+      body: file
+    });
+
+    if(!up.ok){
+      const txt = await up.text().catch(()=> "");
+      throw new Error(`Upload falhou: ${up.status} ${txt}`);
+    }
+    const fileInfo = await up.json();
+    anexoWebUrl = fileInfo.webUrl || "";
+
+    // 3) guardar link do anexo no item
+    await graph(`/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        AnexoUrl: anexoWebUrl,
+        AnexoNome: safeName
+      })
+    });
+  }
+
+  toast("Pedido criado. O Flow (Power Automate) vai tratar das aprovações.");
+  $("fTitle").value = "";
+  $("fDesc").value = "";
+  $("fApprovers").value = "";
+  $("fFile").value = "";
+
+  await loadItems();
+}
+
+/* ==========================
+   Auth UI
+   ========================== */
+function setLoggedInState(isIn, meText=""){
+  $("btnLogin").disabled = isIn;
+  $("btnLogout").disabled = !isIn;
+  $("btnRefresh").disabled = !isIn;
+  $("btnCreate").disabled = !isIn;
+  $("createHint").textContent = isIn ? "Tudo pronto. Cria o pedido e deixa o Flow fazer o resto." : "Faz login para criar pedidos.";
+  $("who").textContent = isIn ? meText : "Não autenticado";
+}
+
+async function login(){
+  const res = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES });
+  account = res.account;
+  const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
+  const mail = me.mail || me.userPrincipalName || "";
+  setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
+  await loadItems();
+}
+
+async function logout(){
+  if(!account) return;
+  await msalInstance.logoutPopup({ account });
+  account = null;
+  siteId = listId = driveId = null;
+  setLoggedInState(false);
+  $("tbody").innerHTML = "";
+  $("tbl").style.display = "none";
+  $("listHint").textContent = "Lista vazia (ou ainda não carregada).";
+  $("detail").style.display = "none";
+  $("detailEmpty").style.display = "block";
+}
+
+/* ==========================
+   boot
+   ========================== */
+(async function init(){
+  // tentar recuperar sessão
+  const accts = msalInstance.getAllAccounts();
+  if(accts && accts.length){
+    account = accts[0];
+    try{
+      const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
+      const mail = me.mail || me.userPrincipalName || "";
+      setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
+      await loadItems();
+    }catch(e){
+      // token ou permissões podem falhar na 1ª vez
+      setLoggedInState(true, "Sessão ativa (carrega em Atualizar)");
+    }
+  }else{
+    setLoggedInState(false);
+  }
+
+  $("btnLogin").addEventListener("click", ()=>login().catch(e=>toast(e.message)));
+  $("btnLogout").addEventListener("click", ()=>logout().catch(e=>toast(e.message)));
+  $("btnRefresh").addEventListener("click", ()=>loadItems().catch(e=>toast(e.message)));
+  $("btnCreate").addEventListener("click", ()=>createItemAndUpload().catch(e=>toast(e.message)));
+})();
+</script>
 </body>
 </html>

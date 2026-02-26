@@ -455,11 +455,15 @@ function setLoggedInState(isIn, meText=""){
 }
 
 async function login(){
+  await MSAL_READY; // <<<
+
   const res = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES });
   account = res.account;
+
   const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
   const mail = me.mail || me.userPrincipalName || "";
   setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
+
   await loadItems();
 }
 

@@ -249,14 +249,22 @@ async function getToken(){
 
 async function graph(url, options={}){
   const token = await getToken();
+
+  const headers = {
+    "Authorization": "Bearer " + token,
+    ...(options.headers || {})
+  };
+
+  // Só define Content-Type se NÃO for FormData
+  if(!(options.body instanceof FormData) && options.body !== undefined){
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch("https://graph.microsoft.com/v1.0" + url, {
     ...options,
-    headers: {
-      "Authorization": "Bearer " + token,
-      "Content-Type": options.body instanceof FormData ? undefined : "application/json",
-      ...(options.headers || {})
-    }
+    headers
   });
+
   if(!res.ok){
     const txt = await res.text().catch(()=> "");
     throw new Error(`Graph ${res.status}: ${txt || res.statusText}`);

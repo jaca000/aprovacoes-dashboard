@@ -433,12 +433,11 @@ async function createItemAndUpload(){
 
     // 3) guardar link do anexo no item
     await graph(`/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        AnexoUrl: anexoWebUrl,
-        AnexoNome: safeName
-      })
-    });
+  method: "PATCH",
+  body: JSON.stringify({
+    PastaAnexosUrl: anexoWebUrl
+  })
+});
   }
 
   toast("Pedido criado. O Flow (Power Automate) vai tratar das aprovações.");

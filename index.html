@@ -258,7 +258,11 @@ async function ensureContext(){
   if(siteId && listId && driveId) return;
 
   // 1) Site
-  const site = await graph(`/sites/${CONFIG.spHostname}:${CONFIG.spSitePath}?$select=id,displayName,webUrl`);
+  const site = await graph(
+  CONFIG.spSitePath
+    ? `/sites/${CONFIG.spHostname}:${CONFIG.spSitePath}?$select=id,displayName,webUrl`
+    : `/sites/${CONFIG.spHostname}?$select=id,displayName,webUrl`
+);
   siteId = site.id;
 
   // 2) List

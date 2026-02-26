@@ -233,12 +233,16 @@ let listId = null;
 let driveId = null; // biblioteca “Documentos” (drive do site)
 
 async function getToken(){
+  await MSAL_READY; // <<< GARANTE MSAL inicializado
+
   if(!account) throw new Error("Sem sessão.");
+
   try{
     const res = await msalInstance.acquireTokenSilent({ account, scopes: GRAPH_SCOPES });
     return res.accessToken;
   }catch(e){
     const res = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES });
+    account = res.account || account;
     return res.accessToken;
   }
 }

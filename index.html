@@ -214,7 +214,16 @@ const msalConfig = {
   cache: { cacheLocation: "localStorage" }
 };
 const msalInstance = new msal.PublicClientApplication(msalConfig);
+// ✅ OBRIGATÓRIO (MSAL v3): inicializar antes de fazer login/token
+async function msalBoot() {
+  await msalInstance.initialize();
+  await msalInstance.handleRedirectPromise().catch(() => null);
 
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length) msalInstance.setActiveAccount(accounts[0]);
+}
+
+const MSAL_READY = msalBoot();
 // Scopes (delegated)
 const GRAPH_SCOPES = ["User.Read", "Sites.ReadWrite.All", "Files.ReadWrite.All"];
 

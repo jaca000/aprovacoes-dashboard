@@ -426,7 +426,7 @@ function renderTable(items){
 if (it.id) {
   anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
 }
-    const respostas = f.Respostas || "";
+    const respostas = f.RespostasResumo || "";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -459,7 +459,7 @@ if (it.id) {
   anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
 }
   const aprov = f.EmailsAprovadores || "";
-  const respostas = f.Respostas || "";
+  const respostas = (f.RespostasResumo || "").replace(/\\n/g, "\n");
   const desc = f.Descricao || "";
 
   $("detail").innerHTML = `

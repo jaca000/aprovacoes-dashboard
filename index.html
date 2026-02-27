@@ -304,10 +304,11 @@ function normEmails(s){
     .replace(/&#39;/g, "'");
 
   // 4) normalizar quebras (inclui o caso \n literal)
-  return decoded
-    .replace(/\\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+ return decoded
+  .replace(/\\n/g, "\n")
+  .replace(/\n{3,}/g, "\n\n")
+  .replace(/^\s*•?\s*(Approve|Reject)\s*—\s*/i, "• ")
+  .trim();
 }
 function statusPill(status){
   const s = String(status||"").toLowerCase();

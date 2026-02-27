@@ -281,6 +281,34 @@ function normEmails(s){
     .filter(Boolean)
     .join(";");
 }
+  function stripHtmlToText(html){
+  const s = String(html ?? "");
+  if(!s) return "";
+
+  // 1) converter <br> e fechadores comuns em quebras de linha
+  const withBreaks = s
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n");
+
+  // 2) remover tags
+  const noTags = withBreaks.replace(/<[^>]*>/g, "");
+
+  // 3) decodificar entidades HTML básicas
+  const decoded = noTags
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
+  // 4) normalizar quebras (inclui o caso \n literal)
+  return decoded
+    .replace(/\\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 function statusPill(status){
   const s = String(status||"").toLowerCase();
   if(s.includes("aprov")) return `<span class="pill ok">Aprovado</span>`;

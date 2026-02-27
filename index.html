@@ -346,7 +346,7 @@ let account = null;
 let siteId = null;
 let listId = null;
 let driveId = null; // biblioteca “Documentos” (drive do site)
-
+let currentUserEmail = null;
 async function getToken(){
   await MSAL_READY; // <<< GARANTE MSAL inicializado
 
@@ -433,21 +433,34 @@ async function loadItems(){
   }));
 
   renderTable(items);
-  window.__items = items;
+  window.__items = filtered;
 }
 
 function renderTable(items){
   const tbody = $("tbody");
   tbody.innerHTML = "";
-  if(!items.length){
+
+  // ===== FILTRO POR UTILIZADOR =====
+  const me = String(currentUserEmail || "").toLowerCase();
+
+  const filtered = (items || []).filter(it => {
+    const f = it.fields || {};
+    const creator = String(f.CriadoPorEmail || "").toLowerCase();
+    const approvers = String(f.EmailsAprovadores || "").toLowerCase();
+
+    return (creator && creator === me) || 
+           (approvers && approvers.includes(me));
+  });
+
+  if(!filtered.length){
     $("tbl").style.display = "none";
     $("listHint").textContent = "Sem pedidos ainda.";
     return;
   }
-  $("listHint").textContent = `${items.length} pedido(s) carregado(s).`;
+  $("listHint").textContent = `${filtered.length} pedido(s) carregado(s).`;
   $("tbl").style.display = "table";
 
-  for(const it of items){
+  for(const it of filtered){
     const f = it.fields;
     const title = f.Title || "";
     const estado = f.EstadoGlobal || "Pendente";
@@ -599,7 +612,8 @@ async function login(){
 
   const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
   const mail = me.mail || me.userPrincipalName || "";
-  setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
+currentUserEmail = String(mail || "").toLowerCase();
+setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
 
   await loadItems();
 }
@@ -628,6 +642,7 @@ async function logout(){
     try{
       const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
       const mail = me.mail || me.userPrincipalName || "";
+      currentUserEmail = String(mail || "").toLowerCase();
       setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
       await loadItems();
     }catch(e){

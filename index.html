@@ -416,13 +416,16 @@ async function createItemAndUpload(){
   if(file){
     // cria pasta Aprovacoes/<itemId> implicitamente via upload path
     const safeName = file.name.replace(/[^\w.\- ()]/g, "_");
-    const uploadPath = `${CONFIG.attachmentsRootFolder}/${itemId}/${safeName}`;
+    const uploadUrl = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${CONFIG.attachmentsRootFolder}/${itemId}/${safeName}:/content`;
 
-    const up = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(uploadPath)}:/content`, {
-      method: "PUT",
-      headers: { "Authorization": "Bearer " + await getToken() },
-      body: file
-    });
+const up = await fetch(uploadUrl, {
+  method: "PUT",
+  headers: {
+    "Authorization": "Bearer " + await getToken(),
+    "Content-Type": file.type || "application/octet-stream"
+  },
+  body: file
+});
 
     if(!up.ok){
       const txt = await up.text().catch(()=> "");

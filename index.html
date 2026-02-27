@@ -336,7 +336,10 @@ function renderTable(items){
     const f = it.fields;
     const title = f.Title || "";
     const estado = f.EstadoGlobal || "Pendente";
-    const anexoUrl = f.AnexoUrl || f.AnexoLink || "";
+    let anexoUrl = "";
+if (it.id) {
+  anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
+}
     const respostas = f.Respostas || "";
 
     const tr = document.createElement("tr");

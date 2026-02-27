@@ -368,7 +368,10 @@ function renderDetail(it){
   $("detailEmpty").style.display = "none";
   $("detail").style.display = "block";
 
-  const anexoUrl = f.AnexoUrl || f.AnexoLink || "";
+  let anexoUrl = "";
+if (it.id) {
+  anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
+}
   const aprov = f.EmailsAprovadores || "";
   const respostas = f.Respostas || "";
   const desc = f.Descricao || "";

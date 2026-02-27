@@ -292,9 +292,15 @@ async function ensureContext(){
   if(!found) throw new Error(`Não encontrei a lista "${CONFIG.spListName}". Confirma o nome.`);
   listId = found.id;
 
-  // 3) Drive do site (normalmente "Documentos")
-  const drive = await graph(`/sites/${siteId}/drive?$select=id,webUrl`);
-  driveId = drive.id;
+  // 3) Buscar biblioteca específica (PedidosAprovacaoAnexos)
+const drives = await graph(`/sites/${siteId}/drives?$select=id,name`);
+const foundDrive = (drives.value || []).find(d => 
+  String(d.name).toLowerCase() === "pedidosaprovacaoanexos"
+);
+
+if(!foundDrive) throw new Error("Não encontrei a biblioteca PedidosAprovacaoAnexos.");
+
+driveId = foundDrive.id;
 }
 
 /* ==========================

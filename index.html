@@ -13,9 +13,9 @@
   --txt:#1f2937;
   --mut:#6b7280;
 
-  --ok:#16a34a;
-  --bad:#dc2626;
-  --pend:#2563eb;
+--ok:#2e7d32;
+--bad:#c62828;
+--pend:#2e7d32;
 
   --btn:#ffffff;
   --btn2:#f3f4f6;
@@ -41,14 +41,22 @@
     h1{margin:0; font-size:18px; letter-spacing:.2px}
     .sub{color:var(--mut); font-size:13px}
     .btn{
-      background:var(--btn); border:1px solid var(--line); color:var(--txt);
-      padding:10px 12px; border-radius:12px; cursor:pointer;
-      transition:.15s transform, .15s background;
-      font-weight:600;
-    }
-    .btn:hover{transform:translateY(-1px); background:var(--btn2)}
-    .btn.primary{background:#2a52ff; border-color:rgba(255,255,255,.18)}
-    .btn.primary:hover{background:#2347df}
+  background:#ffffff;
+  border:1px solid var(--line);
+  color:var(--txt);
+  padding:10px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:.15s transform, .15s background;
+  font-weight:600;
+}
+.btn:hover{
+  transform:translateY(-1px);
+  background:#f3f4f6;
+}
+.btn.primary:hover{
+  background:#256428;
+}
     main{padding:18px 18px 40px}
     .grid{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
     @media(max-width:980px){.grid{grid-template-columns:1fr}}
@@ -80,7 +88,11 @@
     }
     .pill.ok{color:var(--ok)}
     .pill.bad{color:var(--bad)}
-    .pill.pend{color:var(--pend)}
+    .pill.pend{
+  color:#2e7d32;
+  background:rgba(46,125,50,.12);
+  border:1px solid rgba(46,125,50,.25);
+}
     table{width:100%; border-collapse:collapse; font-size:13px}
     th,td{padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top}
     th{color:var(--mut); text-align:left; font-weight:700}
@@ -110,9 +122,13 @@
   <div class="wrap">
     <div class="row">
       <div>
-        <h1>Dashboard de Aprovações</h1>
-        <div class="sub" id="who">Não autenticado</div>
-      </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+  <img src="logo-monte-do-pasto.png" style="height:36px;">
+  <div>
+    <h1>Dashboard de Aprovações</h1>
+    <div class="sub" id="who">Não autenticado</div>
+  </div>
+</div>
       <div class="split">
         <button class="btn" id="btnRefresh" disabled>Atualizar</button>
         <button class="btn primary" id="btnLogin">Entrar</button>

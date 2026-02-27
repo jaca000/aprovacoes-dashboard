@@ -133,23 +133,25 @@
 </head>
 <body>
 <header>
-  <div class="wrap">
-    <div class="row">
+  <div class="wrap header-grid">
+
+    <div class="header-left">
+      <img src="logo-monte-do-pasto.png" class="logo">
       <div>
-        <div style="display:flex; align-items:center; gap:12px;">
-  <img src="logo-monte-do-pasto.png" style="height:52px;">
-  <div>
-  <h1>Dashboard de Aprovações</h1>
-  <div class="sub" id="who">Não autenticado</div>
-  <div class="sub" id="now"></div>
-</div>
-</div>
+        <h1>Dashboard de Aprovações</h1>
+        <div class="sub" id="who">Não autenticado</div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div id="now" class="clock"></div>
       <div class="split">
         <button class="btn" id="btnRefresh" disabled>Atualizar</button>
         <button class="btn primary" id="btnLogin">Entrar</button>
         <button class="btn" id="btnLogout" disabled>Sair</button>
       </div>
     </div>
+
   </div>
 </header>
 

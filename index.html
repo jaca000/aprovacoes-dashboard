@@ -325,18 +325,21 @@ function isApproverOf(itemFields){
 async function hasUserAnswered(pedidoId){
   await ensureContext();
 
-  const email = String(currentUser.email || "")
-    .toLowerCase()
-    .replace(/'/g, "''"); // segurança
+  const email = String(currentUser.email || "").toLowerCase();
 
-  // IMPORTANTÍSSIMO: não usar tolower() no $filter do SharePoint Lists
-  const filter = `fields/PedidoID eq ${Number(pedidoId)} and fields/AprovadorEmail eq '${email}'`;
-
+  // 1) Buscar todas as respostas deste PedidoID (no servidor)
+  const filter = `fields/PedidoID eq ${Number(pedidoId)}`;
   const r = await graph(
-    `/sites/${siteId}/lists/${respListId}/items?expand=fields&$top=1&$filter=${encodeURIComponent(filter)}`
+    `/sites/${siteId}/lists/${respListId}/items?expand=fields&$filter=${encodeURIComponent(filter)}`
   );
 
-  return (r.value || []).length > 0;
+  // 2) Filtrar por email em JS (mais fiável do que tolower() no SharePoint)
+  const items = r.value || [];
+  return items.some(item => {
+    const f = item.fields || {};
+    const savedEmail = String(f.AprovadorEmail || "").toLowerCase();
+    return savedEmail === email;
+  });
 }
 function statusPill(status){
   const s = String(status||"").toLowerCase();

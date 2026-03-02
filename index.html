@@ -324,10 +324,18 @@ function isApproverOf(itemFields){
 
 async function hasUserAnswered(pedidoId){
   await ensureContext();
-  // filtrar respostas por PedidoID e RespondenteEmail
-  // Nota: PedidoID tem de ser coluna Número na lista de respostas
-  const filter = `fields/PedidoID eq ${Number(pedidoId)} and tolower(fields/AprovadorEmail) eq '${currentUser.email}'`;
-  const r = await graph(`/sites/${siteId}/lists/${respListId}/items?expand=fields&$top=1&$filter=${encodeURIComponent(filter)}`);
+
+  const email = String(currentUser.email || "")
+    .toLowerCase()
+    .replace(/'/g, "''"); // segurança
+
+  // IMPORTANTÍSSIMO: não usar tolower() no $filter do SharePoint Lists
+  const filter = `fields/PedidoID eq ${Number(pedidoId)} and fields/AprovadorEmail eq '${email}'`;
+
+  const r = await graph(
+    `/sites/${siteId}/lists/${respListId}/items?expand=fields&$top=1&$filter=${encodeURIComponent(filter)}`
+  );
+
   return (r.value || []).length > 0;
 }
 function statusPill(status){
@@ -637,7 +645,7 @@ async function submitDecision(pedidoId, decision, comment){
       fields: {
   Title: `Resposta pedido ${pedidoId}`,
   PedidoID: Number(pedidoId),
-  AprovadorEmail: currentUser.email,
+  AprovadorEmail: String(currentUser.email || "").toLowerCase(),
   AprovadorNome: currentUser.name,
   Decisao: decision,
   Comentario: cleanComment

@@ -573,6 +573,30 @@ ${canDecide ? `
   </div>
 ` : ``}
   `;
+  ${canDecide ? ` ... ` : ``}
+  `;   // 👈 AQUI FECHA A STRING (crases) e termina com ponto-e-vírgula
+
+  // 👇 EXATAMENTE AQUI, ANTES DO "}" FINAL DA FUNÇÃO renderDetail
+
+  if (canDecide) {
+    const btnApprove = document.getElementById("btnApprove");
+    const btnReject  = document.getElementById("btnReject");
+
+    btnApprove.addEventListener("click", async () => {
+      const comment = document.getElementById("decisionComment")?.value || "";
+      await submitDecision(it.id, "Aprovado", comment);
+      toast("Aprovado ✅");
+      await loadItems();
+    });
+
+    btnReject.addEventListener("click", async () => {
+      const comment = document.getElementById("decisionComment")?.value || "";
+      await submitDecision(it.id, "Rejeitado", comment);
+      toast("Rejeitado ❌");
+      await loadItems();
+    });
+  }
+}
 }
 async function submitDecision(pedidoId, decision, comment){
   await ensureContext();

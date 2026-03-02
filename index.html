@@ -537,7 +537,10 @@ async function createItemAndUpload(){
   // user info
   const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
   const myMail = me.mail || me.userPrincipalName || "";
-
+currentUser = { 
+  name: me.displayName || "Utilizador", 
+  email: mail.toLowerCase()
+};
   // 1) criar item na lista
   const created = await graph(`/sites/${siteId}/lists/${listId}/items`, {
     method: "POST",

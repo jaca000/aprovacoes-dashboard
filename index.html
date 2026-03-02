@@ -437,8 +437,8 @@ async function loadItems(){
     created: x.createdDateTime
   }));
 
-  renderTable(items);
-  window.__items = filtered;
+  window.__items = items;
+renderTable(items);
 }
 
 function renderTable(items){

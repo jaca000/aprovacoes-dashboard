@@ -346,6 +346,24 @@ async function hasUserAnswered(pedidoId){
     return samePedido && sameEmail;
   });
 }
+  async function getRespostasDoPedido(pedidoId){
+  await ensureContext();
+
+  const r = await graph(
+    `/sites/${siteId}/lists/${respListId}/items?expand=fields&$top=500`
+  );
+
+  const items = r.value || [];
+
+  return items
+    .filter(item => String(item.fields?.PedidoID) === String(pedidoId))
+    .map(item => ({
+      nome: item.fields?.AprovadorNome || "",
+      email: item.fields?.AprovadorEmail || "",
+      decisao: item.fields?.Decisao || "",
+      comentario: item.fields?.Comentario || ""
+    }));
+}
 function statusPill(status){
   const s = String(status||"").toLowerCase();
   if(s.includes("aprov")) return `<span class="pill ok">Aprovado</span>`;

@@ -547,6 +547,31 @@ const canDecide = isApprover && isPending;
     <div style="margin-top:10px"><span class="k">Descrição</span><div style="margin-top:6px; white-space:pre-wrap">${esc(desc)}</div></div>
     <div style="margin-top:10px"><span class="k">Aprovadores</span><div style="margin-top:6px; white-space:pre-wrap">${esc(aprov)}</div></div>
     <div style="margin-top:10px"><span class="k">Respostas</span><div style="margin-top:6px; white-space:pre-wrap">${esc(respostas)}</div></div>
+  <div style="margin-top:10px">
+  <span class="k">Respostas</span>
+  <div style="margin-top:6px; white-space:pre-wrap">
+    ${esc(respostas)}
+  </div>
+</div>
+
+${canDecide ? `
+  <div class="hr"></div>
+
+  <div>
+    <span class="k">Aprovação</span>
+
+    <div style="margin-top:10px">
+      <label style="margin:0 0 6px">Comentário (opcional)</label>
+      <textarea id="decisionComment" placeholder="Escreve um comentário..."></textarea>
+    </div>
+
+    <div class="split" style="margin-top:10px">
+      <button class="btn primary" id="btnApprove">Aprovar</button>
+      <button class="btn" id="btnReject">Rejeitar</button>
+      <span class="mini">A tua resposta fica registada na app.</span>
+    </div>
+  </div>
+` : ``}
   `;
 }
 async function submitDecision(pedidoId, decision, comment){

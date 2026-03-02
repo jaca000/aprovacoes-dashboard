@@ -680,6 +680,36 @@ async function submitDecision(pedidoId, decision, comment){
 }
     })
   });
+  // 🔄 Recalcular EstadoGlobal
+
+const respostas = await getRespostasDoPedido(pedidoId);
+
+const algumaRejeicao = respostas.some(r =>
+  String(r.decisao).toLowerCase().includes("rejeit")
+);
+
+// buscar o pedido original
+const pedido = (window.__items || []).find(x => String(x.id) === String(pedidoId));
+const listaAprovadores = splitApprovers(pedido?.fields?.EmailsAprovadores || "");
+const totalAprovadores = listaAprovadores.length;
+
+const totalRespostas = respostas.length;
+
+let novoEstado = "Pendente";
+
+if(algumaRejeicao){
+  novoEstado = "Rejeitado";
+}else if(totalAprovadores > 0 && totalRespostas >= totalAprovadores){
+  novoEstado = "Aprovado";
+}
+
+// atualizar pedido principal
+await graph(`/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`, {
+  method: "PATCH",
+  body: JSON.stringify({
+    EstadoGlobal: novoEstado
+  })
+});
 }
 async function createItemAndUpload(){
   await ensureContext();

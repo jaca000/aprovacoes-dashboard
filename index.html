@@ -446,7 +446,7 @@ function renderTable(items){
   tbody.innerHTML = "";
 
   // ===== FILTRO POR UTILIZADOR =====
-  const me = String(currentUserEmail || "").toLowerCase();
+  const me = String(currentUser.email || "").toLowerCase();
 
   const filtered = (items || []).filter(it => {
     const f = it.fields || {};
@@ -538,8 +538,8 @@ async function createItemAndUpload(){
   const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
   const myMail = me.mail || me.userPrincipalName || "";
 currentUser = { 
-  name: me.displayName || "Utilizador", 
-  email: mail.toLowerCase()
+  name: me.displayName || "Utilizador",
+  email: String(myMail || "").toLowerCase()
 };
   // 1) criar item na lista
   const created = await graph(`/sites/${siteId}/lists/${listId}/items`, {
@@ -620,8 +620,11 @@ async function login(){
 
   const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
   const mail = me.mail || me.userPrincipalName || "";
-currentUserEmail = String(mail || "").toLowerCase();
-setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
+currentUser = { 
+  name: me.displayName || "Utilizador",
+  email: String(mail || "").toLowerCase()
+};
+setLoggedInState(true, `${currentUser.name} — ${mail}`);
 
   await loadItems();
 }

@@ -625,7 +625,7 @@ async function submitDecision(pedidoId, decision, comment){
   Title: `Resposta pedido ${pedidoId}`,
   PedidoID: Number(pedidoId),
   AprovadorEmail: currentUser.email,
-  RespondenteNome: currentUser.name,
+  AprovadorNome: currentUser.name,
   Decisao: decision,
   Comentario: cleanComment
 }

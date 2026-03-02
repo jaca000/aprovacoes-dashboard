@@ -660,30 +660,7 @@ async function logout(){
   }else{
     setLoggedInState(false);
   }
-// ===== RESTAURAR SESSÃO SE JÁ EXISTIR =====
-const accts = msalInstance.getAllAccounts();
-if(accts && accts.length){
-  account = accts[0];
-  msalInstance.setActiveAccount(account);
 
-  try{
-    const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
-    const mail = (me.mail || me.userPrincipalName || "").toLowerCase();
-
-    currentUser = {
-      name: me.displayName || "Utilizador",
-      email: mail
-    };
-
-    setLoggedInState(true, `${currentUser.name} — ${currentUser.email}`);
-    await loadItems();
-
-  }catch(e){
-    console.error("Erro ao restaurar sessão:", e);
-  }
-}else{
-  setLoggedInState(false);
-}
   $("btnLogin").addEventListener("click", ()=>login().catch(e=>toast(e.message)));
   $("btnLogout").addEventListener("click", ()=>logout().catch(e=>toast(e.message)));
   $("btnRefresh").addEventListener("click", ()=>loadItems().catch(e=>toast(e.message)));

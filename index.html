@@ -517,24 +517,26 @@ if (it.id) {
 }
 
 function renderDetail(it){
-  const f = it.fields;
+  const f = it.fields || {};
   $("detailEmpty").style.display = "none";
   $("detail").style.display = "block";
 
   let anexoUrl = "";
-if (it.id) {
-  anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
-}
+  if (it.id) {
+    anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
+  }
+
   const aprov = f.EmailsAprovadores || "";
   const respostas = stripHtmlToText(f.RespostasResumo || "");
   const desc = f.Descricao || "";
-const me = String(currentUser.email || "").toLowerCase();
-const approvers = String(aprov || "").toLowerCase();
 
-const isApprover = me && approvers.includes(me);
-const isPending = String(f.EstadoGlobal || "").toLowerCase().includes("pend");
+  const me = String(currentUser.email || "").toLowerCase();
+  const approvers = splitApprovers(aprov);
 
-const canDecide = isApprover && isPending;
+  const isApprover = me && approvers.includes(me);
+  const isPending = String(f.EstadoGlobal || "").toLowerCase().includes("pend");
+  const canDecide = isApprover && isPending;
+
   $("detail").innerHTML = `
     <div class="split">
       <div><span class="k">ID</span> <span class="v">${esc(it.id)}</span></div>
@@ -542,50 +544,54 @@ const canDecide = isApprover && isPending;
       <div><span class="k">Criado por</span> <span class="v">${esc(f.CriadoPorEmail || "")}</span></div>
       ${anexoUrl ? `<div><a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a></div>` : ""}
     </div>
+
     <div class="hr"></div>
-    <div><span class="k">Título</span><div class="v" style="margin-top:4px">${esc(f.Title || "")}</div></div>
-    <div style="margin-top:10px"><span class="k">Descrição</span><div style="margin-top:6px; white-space:pre-wrap">${esc(desc)}</div></div>
-    <div style="margin-top:10px"><span class="k">Aprovadores</span><div style="margin-top:6px; white-space:pre-wrap">${esc(aprov)}</div></div>
-  <div style="margin-top:10px">
-  <span class="k">Respostas</span>
-  <div style="margin-top:6px; white-space:pre-wrap">
-    ${esc(respostas)}
-  </div>
-</div>
 
-${canDecide ? `
-  <div class="hr"></div>
-
-  <div>
-    <span class="k">Aprovação</span>
-
-    <div style="margin-top:10px">
-      <label style="margin:0 0 6px">Comentário (opcional)</label>
-      <textarea id="decisionComment" placeholder="Escreve um comentário..."></textarea>
+    <div><span class="k">Título</span>
+      <div class="v" style="margin-top:4px">${esc(f.Title || "")}</div>
     </div>
 
-    <div class="split" style="margin-top:10px">
-      <button class="btn primary" id="btnApprove">Aprovar</button>
-      <button class="btn" id="btnReject">Rejeitar</button>
-      <span class="mini">A tua resposta fica registada na app.</span>
+    <div style="margin-top:10px"><span class="k">Descrição</span>
+      <div style="margin-top:6px; white-space:pre-wrap">${esc(desc)}</div>
     </div>
-  </div>
-` : ``}
 
-  // 👇 EXATAMENTE AQUI, ANTES DO "}" FINAL DA FUNÇÃO renderDetail
+    <div style="margin-top:10px"><span class="k">Aprovadores</span>
+      <div style="margin-top:6px; white-space:pre-wrap">${esc(aprov)}</div>
+    </div>
+
+    <div style="margin-top:10px"><span class="k">Respostas</span>
+      <div style="margin-top:6px; white-space:pre-wrap">${esc(respostas)}</div>
+    </div>
+
+    ${canDecide ? `
+      <div class="hr"></div>
+
+      <div>
+        <span class="k">Aprovação</span>
+
+        <div style="margin-top:10px">
+          <label style="margin:0 0 6px">Comentário (opcional)</label>
+          <textarea id="decisionComment" placeholder="Escreve um comentário..."></textarea>
+        </div>
+
+        <div class="split" style="margin-top:10px">
+          <button class="btn primary" id="btnApprove">Aprovar</button>
+          <button class="btn" id="btnReject">Rejeitar</button>
+          <span class="mini">A tua resposta fica registada na app.</span>
+        </div>
+      </div>
+    ` : ``}
+  `;
 
   if (canDecide) {
-    const btnApprove = document.getElementById("btnApprove");
-    const btnReject  = document.getElementById("btnReject");
-
-    btnApprove.addEventListener("click", async () => {
+    document.getElementById("btnApprove").addEventListener("click", async () => {
       const comment = document.getElementById("decisionComment")?.value || "";
       await submitDecision(it.id, "Aprovado", comment);
       toast("Aprovado ✅");
       await loadItems();
     });
 
-    btnReject.addEventListener("click", async () => {
+    document.getElementById("btnReject").addEventListener("click", async () => {
       const comment = document.getElementById("decisionComment")?.value || "";
       await submitDecision(it.id, "Rejeitado", comment);
       toast("Rejeitado ❌");

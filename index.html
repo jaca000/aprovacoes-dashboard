@@ -548,7 +548,15 @@ async function renderDetail(it){
 
   // ✅ só calcula uma vez
   let alreadyAnswered = false;
-  if (isApprover) alreadyAnswered = await hasUserAnswered(it.id);
+
+if (isApprover) {
+  try {
+    alreadyAnswered = await hasUserAnswered(it.id);
+  } catch (e) {
+    console.error("Erro a verificar resposta:", e);
+    alreadyAnswered = false; // falhou? assume que ainda não respondeu
+  }
+}
 
   const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
 

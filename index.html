@@ -516,7 +516,7 @@ if (it.id) {
   });
 }
 
-function renderDetail(it){
+async function renderDetail(it){
   const f = it.fields || {};
   $("detailEmpty").style.display = "none";
   $("detail").style.display = "block";

@@ -543,7 +543,25 @@ if (it.id) {
     <div style="margin-top:10px"><span class="k">Respostas</span><div style="margin-top:6px; white-space:pre-wrap">${esc(respostas)}</div></div>
   `;
 }
+async function submitDecision(pedidoId, decision, comment){
+  await ensureContext();
 
+  const cleanComment = String(comment||"").trim();
+
+  await graph(`/sites/${siteId}/lists/${respListId}/items`, {
+    method: "POST",
+    body: JSON.stringify({
+      fields: {
+        Title: `Resposta pedido ${pedidoId}`,
+        PedidoID: Number(pedidoId),
+        RespondenteEmail: currentUser.email,
+        RespondenteNome: currentUser.name,
+        Decisao: decision,          // "Aprovado" ou "Rejeitado" (igual ao que o Flow espera)
+        Comentario: cleanComment
+      }
+    })
+  });
+}
 async function createItemAndUpload(){
   await ensureContext();
 

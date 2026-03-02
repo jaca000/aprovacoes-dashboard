@@ -407,7 +407,11 @@ async function ensureContext(){
   const found = (lists.value || []).find(l => String(l.displayName).toLowerCase() === String(CONFIG.spListName).toLowerCase());
   if(!found) throw new Error(`Não encontrei a lista "${CONFIG.spListName}". Confirma o nome.`);
   listId = found.id;
-
+const foundResp = (lists.value || []).find(l => 
+  String(l.displayName).toLowerCase() === String(CONFIG.spResponsesListName).toLowerCase()
+);
+if(!foundResp) throw new Error(`Não encontrei a lista "${CONFIG.spResponsesListName}". Confirma o nome.`);
+respListId = foundResp.id;
   // 3) Buscar biblioteca específica (PedidosAprovacaoAnexos)
 const drives = await graph(`/sites/${siteId}/drives?$select=id,name`);
 const foundDrive = (drives.value || []).find(d => 

@@ -542,9 +542,21 @@ async function renderDetail(it){
     : "";
 
   const aprov = f.EmailsAprovadores || "";
-  const respostas = stripHtmlToText(f.RespostasResumo || "");
   const desc = f.Descricao || "";
+// ✅ buscar respostas reais da lista de respostas
+const respostasList = await getRespostasDoPedido(it.id);
 
+let respostasText = "";
+
+if(respostasList.length){
+  respostasText = respostasList.map(r => {
+    const linha1 = `• ${r.nome || r.email} — ${r.decisao || "Sem decisão"}`;
+    const linha2 = r.comentario ? `   Comentário: ${r.comentario}` : "";
+    return linha1 + (linha2 ? "\n" + linha2 : "");
+  }).join("\n\n");
+}else{
+  respostasText = "Sem respostas ainda.";
+}
   const me = String(currentUser.email || "").toLowerCase();
   const approvers = splitApprovers(aprov);
 

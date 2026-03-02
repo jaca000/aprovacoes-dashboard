@@ -203,7 +203,7 @@
       <input id="fFile" type="file" />
 
       <div class="mini" style="margin-top:10px">
-        O anexo será guardado na biblioteca do SharePoint e o pedido fica com um link para abrir/transferir.
+        O anexo será guardado na biblioteca do SharePoint.
       </div>
 
       <div class="hr"></div>
@@ -813,7 +813,7 @@ function setLoggedInState(isIn, meText=""){
   $("btnLogout").disabled = !isIn;
   $("btnRefresh").disabled = !isIn;
   $("btnCreate").disabled = !isIn;
-  $("createHint").textContent = isIn ? "Tudo pronto. Cria o pedido e deixa o Flow fazer o resto." : "Faz login para criar pedidos.";
+  $("createHint").textContent = isIn ? "Tudo pronto. Cria o pedido e aguarda as Aprovações." : "Faz login para criar pedidos.";
   $("who").textContent = isIn ? meText : "Não autenticado";
 }
 

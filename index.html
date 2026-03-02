@@ -622,13 +622,13 @@ async function submitDecision(pedidoId, decision, comment){
     method: "POST",
     body: JSON.stringify({
       fields: {
-        Title: `Resposta pedido ${pedidoId}`,
-        PedidoID: Number(pedidoId),
-        RespondenteEmail: currentUser.email,
-        RespondenteNome: currentUser.name,
-        Decisao: decision,          // "Aprovado" ou "Rejeitado" (igual ao que o Flow espera)
-        Comentario: cleanComment
-      }
+  Title: `Resposta pedido ${pedidoId}`,
+  PedidoID: Number(pedidoId),
+  AprovadorEmail: currentUser.email,
+  RespondenteNome: currentUser.name,
+  Decisao: decision,
+  Comentario: cleanComment
+}
     })
   });
 }

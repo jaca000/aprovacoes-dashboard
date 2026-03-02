@@ -326,7 +326,7 @@ async function hasUserAnswered(pedidoId){
   await ensureContext();
   // filtrar respostas por PedidoID e RespondenteEmail
   // Nota: PedidoID tem de ser coluna Número na lista de respostas
-  const filter = `fields/PedidoID eq ${Number(pedidoId)} and tolower(fields/RespondenteEmail) eq '${currentUser.email}'`;
+  const filter = `fields/PedidoID eq ${Number(pedidoId)} and tolower(fields/AprovadorEmail) eq '${currentUser.email}'`;
   const r = await graph(`/sites/${siteId}/lists/${respListId}/items?expand=fields&$top=1&$filter=${encodeURIComponent(filter)}`);
   return (r.value || []).length > 0;
 }

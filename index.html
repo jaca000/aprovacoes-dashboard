@@ -345,8 +345,9 @@ const GRAPH_SCOPES = ["User.Read", "Sites.ReadWrite.All", "Files.ReadWrite.All"]
 let account = null;
 let siteId = null;
 let listId = null;
-let driveId = null; // biblioteca “Documentos” (drive do site)
-let currentUserEmail = null;
+let respListId = null;     // 👈 ID da lista PedidosAprovacaoRespostas
+let driveId = null;        // biblioteca de anexos
+let currentUser = { name:"", email:"" }; // 👈 user atual (nome + email)
 async function getToken(){
   await MSAL_READY; // <<< GARANTE MSAL inicializado
 

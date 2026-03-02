@@ -543,7 +543,13 @@ const isPending = (st === "") || st.includes("pend");
 
 // (e garante que não aparece se já está fechado)
 const isClosed = st.includes("aprov") || st.includes("rejeit");
-const canDecide = isApprover && isPending && !isClosed;
+let alreadyAnswered = false;
+
+if (isApprover) {
+  alreadyAnswered = await hasUserAnswered(it.id);
+}
+
+const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
 
   $("detail").innerHTML = `
     <div class="split">

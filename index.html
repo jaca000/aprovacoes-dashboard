@@ -534,8 +534,16 @@ function renderDetail(it){
   const approvers = splitApprovers(aprov);
 
   const isApprover = me && approvers.includes(me);
-  const isPending = String(f.EstadoGlobal || "").toLowerCase().includes("pend");
-  const canDecide = isApprover && isPending;
+  const st = String(f.EstadoGlobal || "").toLowerCase().trim();
+
+// Considera "pendente" quando:
+// - está vazio, OU
+// - contém "pend"
+const isPending = (st === "") || st.includes("pend");
+
+// (e garante que não aparece se já está fechado)
+const isClosed = st.includes("aprov") || st.includes("rejeit");
+const canDecide = isApprover && isPending && !isClosed;
 
   $("detail").innerHTML = `
     <div class="split">

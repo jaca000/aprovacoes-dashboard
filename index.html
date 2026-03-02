@@ -577,7 +577,12 @@ const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
       <div style="margin-top:6px; white-space:pre-wrap">${esc(respostas)}</div>
     </div>
 
-    ${canDecide ? `
+    ${alreadyAnswered ? `
+    <div class="hr"></div>
+    <div class="mini">
+      Já respondeste a este pedido. A decisão ficou registada e não pode ser alterada.
+    </div>
+` : canDecide ? `
       <div class="hr"></div>
 
       <div>
@@ -594,7 +599,7 @@ const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
           <span class="mini">A tua resposta fica registada na app.</span>
         </div>
       </div>
-    ` : ``}
+` : ``}
   `;
 
   if (canDecide) {

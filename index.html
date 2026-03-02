@@ -327,18 +327,23 @@ async function hasUserAnswered(pedidoId){
 
   const email = String(currentUser.email || "").toLowerCase();
 
-  // 1) Buscar todas as respostas deste PedidoID (no servidor)
-  const filter = `fields/PedidoID eq ${Number(pedidoId)}`;
+  // Buscar TODAS as respostas (sem filtro por PedidoID)
   const r = await graph(
-    `/sites/${siteId}/lists/${respListId}/items?expand=fields&$filter=${encodeURIComponent(filter)}`
+    `/sites/${siteId}/lists/${respListId}/items?expand=fields&$top=500`
   );
 
-  // 2) Filtrar por email em JS (mais fiável do que tolower() no SharePoint)
   const items = r.value || [];
+
   return items.some(item => {
     const f = item.fields || {};
-    const savedEmail = String(f.AprovadorEmail || "").toLowerCase();
-    return savedEmail === email;
+
+    const samePedido =
+      String(f.PedidoID || "").trim() === String(pedidoId).trim();
+
+    const sameEmail =
+      String(f.AprovadorEmail || "").toLowerCase() === email;
+
+    return samePedido && sameEmail;
   });
 }
 function statusPill(status){

@@ -754,9 +754,9 @@ async function logout(){
     account = accts[0];
     try{
       const me = await graph(`/me?$select=displayName,mail,userPrincipalName`);
-      const mail = me.mail || me.userPrincipalName || "";
-      currentUserEmail = String(mail || "").toLowerCase();
-      setLoggedInState(true, `${me.displayName || "Utilizador"} — ${mail}`);
+      const mail = (me.mail || me.userPrincipalName || "").toLowerCase();
+currentUser = { name: me.displayName || "Utilizador", email: mail };
+setLoggedInState(true, `${currentUser.name} — ${currentUser.email}`);
       await loadItems();
     }catch(e){
       // token ou permissões podem falhar na 1ª vez

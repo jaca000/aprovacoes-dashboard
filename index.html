@@ -521,10 +521,9 @@ async function renderDetail(it){
   $("detailEmpty").style.display = "none";
   $("detail").style.display = "block";
 
-  let anexoUrl = "";
-  if (it.id) {
-    anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
-  }
+  const anexoUrl = it.id
+    ? `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`
+    : "";
 
   const aprov = f.EmailsAprovadores || "";
   const respostas = stripHtmlToText(f.RespostasResumo || "");
@@ -534,22 +533,16 @@ async function renderDetail(it){
   const approvers = splitApprovers(aprov);
 
   const isApprover = me && approvers.includes(me);
+
   const st = String(f.EstadoGlobal || "").toLowerCase().trim();
+  const isPending = (st === "") || st.includes("pend");
+  const isClosed = st.includes("aprov") || st.includes("rejeit");
 
-// Considera "pendente" quando:
-// - está vazio, OU
-// - contém "pend"
-const isPending = (st === "") || st.includes("pend");
+  // ✅ só calcula uma vez
+  let alreadyAnswered = false;
+  if (isApprover) alreadyAnswered = await hasUserAnswered(it.id);
 
-// (e garante que não aparece se já está fechado)
-const isClosed = st.includes("aprov") || st.includes("rejeit");
-let alreadyAnswered = false;
-
-if (isApprover) {
-  alreadyAnswered = await hasUserAnswered(it.id);
-}
-
-const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
+  const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
 
   $("detail").innerHTML = `
     <div class="split">
@@ -578,11 +571,11 @@ const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
     </div>
 
     ${alreadyAnswered ? `
-    <div class="hr"></div>
-    <div class="mini">
-      Já respondeste a este pedido. A decisão ficou registada e não pode ser alterada.
-    </div>
-` : canDecide ? `
+      <div class="hr"></div>
+      <div class="mini">
+        Já respondeste a este pedido. A decisão ficou registada e não pode ser alterada.
+      </div>
+    ` : canDecide ? `
       <div class="hr"></div>
 
       <div>
@@ -599,34 +592,37 @@ const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
           <span class="mini">A tua resposta fica registada na app.</span>
         </div>
       </div>
-` : ``}
+    ` : ``}
   `;
-let alreadyAnswered = false;
 
-if (isApprover) {
-  alreadyAnswered = await hasUserAnswered(it.id);
-}
-
-const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
+  // ✅ Handlers só depois do innerHTML (e só se canDecide)
   if (canDecide) {
     document.getElementById("btnApprove").addEventListener("click", async () => {
-  try{
-    const comment = document.getElementById("decisionComment")?.value || "";
-    toast("A gravar...");
-    await submitDecision(it.id, "Aprovado", comment);
-    toast("Aprovado ✅");
-    await loadItems();
-  }catch(e){
-    console.error(e);
-    toast("ERRO: " + (e?.message || e));
-  }
-});
+      try{
+        const comment = document.getElementById("decisionComment")?.value || "";
+        toast("A gravar...");
+        await submitDecision(it.id, "Aprovado", comment);
+        toast("Aprovado ✅");
+        await loadItems();
+        await renderDetail(it); // mantém o detalhe aberto e atualiza o texto/botões
+      }catch(e){
+        console.error(e);
+        toast("ERRO: " + (e?.message || e));
+      }
+    });
 
     document.getElementById("btnReject").addEventListener("click", async () => {
-      const comment = document.getElementById("decisionComment")?.value || "";
-      await submitDecision(it.id, "Rejeitado", comment);
-      toast("Rejeitado ❌");
-      await loadItems();
+      try{
+        const comment = document.getElementById("decisionComment")?.value || "";
+        toast("A gravar...");
+        await submitDecision(it.id, "Rejeitado", comment);
+        toast("Rejeitado ❌");
+        await loadItems();
+        await renderDetail(it);
+      }catch(e){
+        console.error(e);
+        toast("ERRO: " + (e?.message || e));
+      }
     });
   }
 }

@@ -593,11 +593,17 @@ const canDecide = isApprover && isPending && !isClosed;
 
   if (canDecide) {
     document.getElementById("btnApprove").addEventListener("click", async () => {
-      const comment = document.getElementById("decisionComment")?.value || "";
-      await submitDecision(it.id, "Aprovado", comment);
-      toast("Aprovado ✅");
-      await loadItems();
-    });
+  try{
+    const comment = document.getElementById("decisionComment")?.value || "";
+    toast("A gravar...");
+    await submitDecision(it.id, "Aprovado", comment);
+    toast("Aprovado ✅");
+    await loadItems();
+  }catch(e){
+    console.error(e);
+    toast("ERRO: " + (e?.message || e));
+  }
+});
 
     document.getElementById("btnReject").addEventListener("click", async () => {
       const comment = document.getElementById("decisionComment")?.value || "";

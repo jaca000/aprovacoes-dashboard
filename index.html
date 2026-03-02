@@ -528,7 +528,13 @@ if (it.id) {
   const aprov = f.EmailsAprovadores || "";
   const respostas = stripHtmlToText(f.RespostasResumo || "");
   const desc = f.Descricao || "";
+const me = String(currentUserEmail || "").toLowerCase();
+const approvers = String(aprov || "").toLowerCase();
 
+const isApprover = me && approvers.includes(me);
+const isPending = String(f.EstadoGlobal || "").toLowerCase().includes("pend");
+
+const canDecide = isApprover && isPending;
   $("detail").innerHTML = `
     <div class="split">
       <div><span class="k">ID</span> <span class="v">${esc(it.id)}</span></div>

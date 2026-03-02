@@ -528,7 +528,7 @@ if (it.id) {
   const aprov = f.EmailsAprovadores || "";
   const respostas = stripHtmlToText(f.RespostasResumo || "");
   const desc = f.Descricao || "";
-const me = String(currentUserEmail || "").toLowerCase();
+const me = String(currentUser.email || "").toLowerCase();
 const approvers = String(aprov || "").toLowerCase();
 
 const isApprover = me && approvers.includes(me);
@@ -572,9 +572,6 @@ ${canDecide ? `
     </div>
   </div>
 ` : ``}
-  `;
-  ${canDecide ? ` ... ` : ``}
-  `;   // 👈 AQUI FECHA A STRING (crases) e termina com ponto-e-vírgula
 
   // 👇 EXATAMENTE AQUI, ANTES DO "}" FINAL DA FUNÇÃO renderDetail
 
@@ -596,7 +593,6 @@ ${canDecide ? `
       await loadItems();
     });
   }
-}
 }
 async function submitDecision(pedidoId, decision, comment){
   await ensureContext();

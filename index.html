@@ -601,7 +601,13 @@ const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
       </div>
 ` : ``}
   `;
+let alreadyAnswered = false;
 
+if (isApprover) {
+  alreadyAnswered = await hasUserAnswered(it.id);
+}
+
+const canDecide = isApprover && isPending && !isClosed && !alreadyAnswered;
   if (canDecide) {
     document.getElementById("btnApprove").addEventListener("click", async () => {
   try{

@@ -499,7 +499,6 @@ function renderTable(items){
   const tbody = $("tbody");
   tbody.innerHTML = "";
 
-  // ===== FILTRO POR UTILIZADOR =====
   const me = String(currentUser.email || "").toLowerCase();
 
   const filtered = (items || []).filter(it => {
@@ -516,67 +515,49 @@ function renderTable(items){
     $("listHint").textContent = "Sem pedidos ainda.";
     return;
   }
+
   $("listHint").textContent = `${filtered.length} pedido(s) carregado(s).`;
   $("tbl").style.display = "table";
 
   for(const it of filtered){
 
-  const f = it.fields;
-  const title = f.Title || "";
-  const estado = f.EstadoGlobal || "Pendente";
+    const f = it.fields;
+    const title = f.Title || "";
+    const estado = f.EstadoGlobal || "Pendente";
 
-  const dataResp = f.DataResposta
-    ? new Date(f.DataResposta).toLocaleString("pt-PT")
-    : "";
+    const dataResp = f.DataResposta
+      ? new Date(f.DataResposta).toLocaleString("pt-PT")
+      : "";
 
-  let anexoUrl = "";
-  if (it.id) {
-    anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
-  }
-
-  const tr = document.createElement("tr");
-
-  tr.innerHTML = `
-    <td>${esc(it.id)}</td>
-    <td><a class="link" href="#" data-id="${esc(it.id)}">${esc(title)}</a></td>
-    <td>${statusPill(estado)}</td>
-    <td>
-      ${anexoUrl 
-        ? `<a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a>` 
-        : `<span class="k">—</span>`
-      }
-    </td>
-    <td>
-      ${dataResp 
-        ? `<span class="k">${esc(dataResp)}</span>` 
-        : `<span class="k">—</span>`
-      }
-    </td>
-  `;
-
-  tbody.appendChild(tr);
-}
-    
+    let anexoUrl = "";
+    if (it.id) {
+      anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
+    }
 
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-  <td>${esc(it.id)}</td>
-  <td><a class="link" href="#" data-id="${esc(it.id)}">${esc(title)}</a></td>
-  <td>${statusPill(estado)}</td>
-  <td>
-    ${anexoUrl 
-      ? `<a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a>` 
-      : `<span class="k">—</span>`
-    }
-  </td>
-  <td>
-    ${dataResp 
-      ? `<span class="k">${esc(dataResp)}</span>` 
-      : `<span class="k">—</span>`
-    }
-  </td>
-`;
 
+    tr.innerHTML = `
+      <td>${esc(it.id)}</td>
+      <td><a class="link" href="#" data-id="${esc(it.id)}">${esc(title)}</a></td>
+      <td>${statusPill(estado)}</td>
+      <td>
+        ${anexoUrl 
+          ? `<a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a>` 
+          : `<span class="k">—</span>`
+        }
+      </td>
+      <td>
+        ${dataResp 
+          ? `<span class="k">${esc(dataResp)}</span>` 
+          : `<span class="k">—</span>`
+        }
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  }
+
+  // 👇 EVENT LISTENERS FICAM AQUI, FORA DO LOOP
   tbody.querySelectorAll("a[data-id]").forEach(a=>{
     a.addEventListener("click", (e)=>{
       e.preventDefault();

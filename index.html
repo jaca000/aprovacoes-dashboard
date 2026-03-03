@@ -258,7 +258,11 @@
    <section class="card">
 
   <div class="section-divider neutral">
-  <span>Pedidos Criados por Mim</span>
+  <span>
+    <span class="section-icon">📄</span>
+    Pedidos Criados por Mim
+  </span>
+  <span class="badge" id="badgeCreated">0</span>
 </div>
 
   <table id="tblCreator" style="display:none">
@@ -274,7 +278,11 @@
   </table>
 
   <div class="section-divider success">
-  <span>Pedidos Recebidos Para Minha Aprovação</span>
+  <span>
+    <span class="section-icon">✔️</span>
+    Pedidos Recebidos Para Minha Aprovação
+  </span>
+  <span class="badge success" id="badgeReceived">0</span>
 </div>
 
   <div class="approval-group">
@@ -602,6 +610,7 @@ async function renderTable(items){
 function renderCriados(items){
 
   const tbody = document.getElementById("tbodyCreator");
+  document.getElementById("badgeCreated").textContent = items.length;
   tbody.innerHTML = "";
 
   if(!items.length){
@@ -635,7 +644,7 @@ function renderCriados(items){
   attachDetailListeners();
 }
 async function renderAprovacoes(items){
-
+document.getElementById("badgeReceived").textContent = items.length;
   const me = String(currentUser.email || "").toLowerCase();
 
   const tbodyPending = document.getElementById("tbodyPending");

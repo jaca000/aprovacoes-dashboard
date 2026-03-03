@@ -1006,7 +1006,7 @@ const up = await fetch(uploadUrl, {
 await graph(`/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, {
   method: "PATCH",
   body: JSON.stringify({
-    AnexoUrl: anexoWebUrl
+    PastaAnexosUrl: anexoWebUrl
   })
 });
   }

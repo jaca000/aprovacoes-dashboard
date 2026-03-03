@@ -765,7 +765,7 @@ await graph(
     method: "PATCH",
     body: JSON.stringify({
       EstadoGlobal: novoEstado,
-      DataResposta: new Date().toISOString() // 👈 ADICIONAR ISTO
+      DataResposta: ultimaData ? ultimaData.toISOString() : null
     })
   }
 );

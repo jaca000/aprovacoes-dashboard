@@ -546,9 +546,107 @@ async function renderTable(items){
   renderCriados(criados);
   await renderAprovacoes(paraAprovar);
 }
+function renderCriados(items){
 
+  const tbody = document.getElementById("tbodyCreator");
+  tbody.innerHTML = "";
 
-async function renderDetail(it){
+  if(!items.length){
+    document.getElementById("tblCreator").style.display = "none";
+    return;
+  }
+
+  document.getElementById("tblCreator").style.display = "table";
+
+  for(const it of items){
+
+    const f = it.fields;
+    const estado = f.EstadoGlobal || "Pendente";
+
+    const dataResp = f.DataResposta
+      ? new Date(f.DataResposta).toLocaleString("pt-PT")
+      : "—";
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${it.id}</td>
+      <td><a class="link" href="#" data-id="${it.id}">${f.Title || ""}</a></td>
+      <td>${statusPill(estado)}</td>
+      <td>${dataResp}</td>
+    `;
+
+    tbody.appendChild(tr);
+  }
+
+  attachDetailListeners();
+}
+async function renderAprovacoes(items){
+
+  const me = String(currentUser.email || "").toLowerCase();
+
+  const tbodyPending = document.getElementById("tbodyPending");
+  const tbodyAnswered = document.getElementById("tbodyAnswered");
+
+  tbodyPending.innerHTML = "";
+  tbodyAnswered.innerHTML = "";
+
+  let hasPending = false;
+  let hasAnswered = false;
+
+  for(const it of items){
+
+    const respondeu = await hasUserAnswered(it.id);
+
+    if(!respondeu){
+
+      hasPending = true;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${it.id}</td>
+        <td><a class="link" href="#" data-id="${it.id}">${it.fields.Title || ""}</a></td>
+        <td>${statusPill("Pendente")}</td>
+      `;
+
+      tbodyPending.appendChild(tr);
+
+    }else{
+
+      hasAnswered = true;
+
+      const respostas = await getRespostasDoPedido(it.id);
+      const minha = respostas.find(r => r.email === me);
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${it.id}</td>
+        <td><a class="link" href="#" data-id="${it.id}">${it.fields.Title || ""}</a></td>
+        <td>${statusPill(minha?.decisao || "")}</td>
+        <td>${minha?.dataResposta ? new Date(minha.dataResposta).toLocaleString("pt-PT") : "—"}</td>
+      `;
+
+      tbodyAnswered.appendChild(tr);
+    }
+  }
+
+  document.getElementById("tblPending").style.display = hasPending ? "table" : "none";
+  document.getElementById("tblAnswered").style.display = hasAnswered ? "table" : "none";
+
+  attachDetailListeners();
+}
+function attachDetailListeners(){
+  document.querySelectorAll("a[data-id]").forEach(a=>{
+    a.addEventListener("click", (e)=>{
+      e.preventDefault();
+      const id = a.getAttribute("data-id");
+      const it = (window.__items || []).find(x => x.id === id);
+      if(it) renderDetail(it);
+    });
+  });
+}
+  async function renderDetail(it){
   const f = it.fields || {};
   $("detailEmpty").style.display = "none";
   $("detail").style.display = "block";
@@ -860,9 +958,13 @@ async function logout(){
   account = null;
   siteId = listId = driveId = null;
   setLoggedInState(false);
-  $("tbody").innerHTML = "";
-  $("tbl").style.display = "none";
-  $("listHint").textContent = "Lista vazia (ou ainda não carregada).";
+  document.getElementById("tbodyCreator").innerHTML = "";
+document.getElementById("tbodyPending").innerHTML = "";
+document.getElementById("tbodyAnswered").innerHTML = "";
+
+document.getElementById("tblCreator").style.display = "none";
+document.getElementById("tblPending").style.display = "none";
+document.getElementById("tblAnswered").style.display = "none";
   $("detail").style.display = "none";
   $("detailEmpty").style.display = "block";
 }

@@ -685,6 +685,7 @@ async function submitDecision(pedidoId, decision, comment){
 
   const cleanComment = String(comment||"").trim();
 
+  // 1️⃣ Guardar resposta
   await graph(`/sites/${siteId}/lists/${respListId}/items`, {
     method: "POST",
     body: JSON.stringify({
@@ -699,26 +700,44 @@ async function submitDecision(pedidoId, decision, comment){
     })
   });
 
-}
- 
-async function submitDecision(pedidoId, decision, comment){
-  await ensureContext();
+  // 2️⃣ Buscar pedido atualizado
+  const pedidoResp = await graph(
+    `/sites/${siteId}/lists/${listId}/items/${pedidoId}?expand=fields`
+  );
 
-  const cleanComment = String(comment||"").trim();
+  const pedidoFields = pedidoResp.fields || {};
+  const listaAprovadores = splitApprovers(pedidoFields.EmailsAprovadores || "");
+  const totalAprovadores = listaAprovadores.length;
 
-  await graph(`/sites/${siteId}/lists/${respListId}/items`, {
-    method: "POST",
-    body: JSON.stringify({
-      fields: {
-        Title: `Resposta pedido ${pedidoId}`,
-        PedidoID: Number(pedidoId),
-        AprovadorEmail: String(currentUser.email || "").toLowerCase(),
-        AprovadorNome: currentUser.name,
-        Decisao: decision,
-        Comentario: cleanComment
-      }
-    })
-  });
+  // 3️⃣ Buscar respostas reais
+  const respostas = await getRespostasDoPedido(pedidoId);
+
+  const algumaRejeicao = respostas.some(r =>
+    String(r.decisao).toLowerCase().includes("rejeit")
+  );
+
+  const totalRespostas = respostas.length;
+
+  // 4️⃣ Definir novo estado
+  let novoEstado = "Pendente";
+
+  if (algumaRejeicao) {
+    novoEstado = "Rejeitado";
+  }
+  else if (totalAprovadores > 0 && totalRespostas >= totalAprovadores) {
+    novoEstado = "Aprovado";
+  }
+
+  // 5️⃣ Atualizar pedido principal
+  await graph(
+    `/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        EstadoGlobal: novoEstado
+      })
+    }
+  );
 }
 async function createItemAndUpload(){
   await ensureContext();

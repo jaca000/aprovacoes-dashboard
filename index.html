@@ -226,7 +226,8 @@
       </div>
     </section>
 
-    <section class="card">
+   <section class="card">
+
   <h2>Pedidos Criados por Mim</h2>
 
   <table id="tblCreator" style="display:none">
@@ -240,37 +241,40 @@
     </thead>
     <tbody id="tbodyCreator"></tbody>
   </table>
-</section>
-    <section class="card">
-      <div class="section-divider">
-  <span>Para Minha Aprovação</span>
-</div>
-  <h2>Pedidos Para Minha Aprovação</h2>
 
-  <h3>Pendentes</h3>
-  <table id="tblPending" style="display:none">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Título</th>
-        <th>Estado</th>
-      </tr>
-    </thead>
-    <tbody id="tbodyPending"></tbody>
-  </table>
+  <div class="section-divider">
+    <span>Para Minha Aprovação</span>
+  </div>
 
-  <h3 style="margin-top:20px">Já Respondidos</h3>
-  <table id="tblAnswered" style="display:none">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Título</th>
-        <th>Minha decisão</th>
-        <th>Data</th>
-      </tr>
-    </thead>
-    <tbody id="tbodyAnswered"></tbody>
-  </table>
+  <div class="approval-group">
+    <h3>Pendentes</h3>
+    <table id="tblPending" style="display:none">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyPending"></tbody>
+    </table>
+  </div>
+
+  <div class="approval-group">
+    <h3>Já Respondidos</h3>
+    <table id="tblAnswered" style="display:none">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Minha decisão</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyAnswered"></tbody>
+    </table>
+  </div>
+
 </section>
       </div> <!-- fim .grid -->
 

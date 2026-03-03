@@ -706,10 +706,46 @@ const algumaRejeicao = respostas.some(r =>
   String(r.decisao).toLowerCase().includes("rejeit")
 );
 
-// buscar o pedido original
-const pedido = (window.__items || []).find(x => String(x.id) === String(pedidoId));
-const listaAprovadores = splitApprovers(pedido?.fields?.EmailsAprovadores || "");
+// 🔄 Recalcular EstadoGlobal com dados frescos
+
+// 1️⃣ Buscar pedido diretamente do SharePoint (dados atualizados)
+const pedidoResp = await graph(
+  `/sites/${siteId}/lists/${listId}/items/${pedidoId}?expand=fields`
+);
+
+const pedidoFields = pedidoResp.fields || {};
+const listaAprovadores = splitApprovers(pedidoFields.EmailsAprovadores || "");
 const totalAprovadores = listaAprovadores.length;
+
+// 2️⃣ Buscar respostas reais
+const respostas = await getRespostasDoPedido(pedidoId);
+
+const algumaRejeicao = respostas.some(r =>
+  String(r.decisao).toLowerCase().includes("rejeit")
+);
+
+const totalRespostas = respostas.length;
+
+// 3️⃣ Definir novo estado
+let novoEstado = "Pendente";
+
+if (algumaRejeicao) {
+  novoEstado = "Rejeitado";
+}
+else if (totalAprovadores > 0 && totalRespostas >= totalAprovadores) {
+  novoEstado = "Aprovado";
+}
+
+// 4️⃣ Atualizar pedido principal
+await graph(
+  `/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`,
+  {
+    method: "PATCH",
+    body: JSON.stringify({
+      EstadoGlobal: novoEstado
+    })
+  }
+);
 
 const totalRespostas = respostas.length;
 

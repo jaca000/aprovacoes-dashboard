@@ -356,13 +356,14 @@ async function hasUserAnswered(pedidoId){
   const items = r.value || [];
 
   return items
-    .filter(item => String(item.fields?.PedidoID) === String(pedidoId))
-    .map(item => ({
-      nome: item.fields?.AprovadorNome || "",
-      email: item.fields?.AprovadorEmail || "",
-      decisao: item.fields?.Decisao || "",
-      comentario: item.fields?.Comentario || ""
-    }));
+  .filter(item => String(item.fields?.PedidoID) === String(pedidoId))
+  .map(item => ({
+    nome: item.fields?.AprovadorNome || "",
+    email: item.fields?.AprovadorEmail || "",
+    decisao: item.fields?.Decisao || "",
+    comentario: item.fields?.Comentario || "",
+    dataResposta: item.fields?.DataResposta || null
+  }));
 }
 function statusPill(status){
   const s = String(status||"").toLowerCase();
@@ -730,7 +731,17 @@ await graph(`/sites/${siteId}/lists/${respListId}/items`, {
 
   // 3️⃣ Buscar respostas reais
   const respostas = await getRespostasDoPedido(pedidoId);
+// 🔥 descobrir a data mais recente
+let ultimaData = null;
 
+respostas.forEach(r => {
+  if (r.dataResposta) {
+    const d = new Date(r.dataResposta);
+    if (!ultimaData || d > ultimaData) {
+      ultimaData = d;
+    }
+  }
+});
   const algumaRejeicao = respostas.some(r =>
     String(r.decisao).toLowerCase().includes("rejeit")
   );

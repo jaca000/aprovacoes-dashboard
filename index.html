@@ -1003,12 +1003,12 @@ const up = await fetch(uploadUrl, {
     anexoWebUrl = fileInfo.webUrl || "";
 
     // 3) guardar link do anexo no item
-    // await graph(`/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, {
-//   method: "PATCH",
-//   body: JSON.stringify({
-//     PastaAnexosUrl: anexoWebUrl
-//   })
-// });
+await graph(`/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, {
+  method: "PATCH",
+  body: JSON.stringify({
+    AnexoUrl: anexoWebUrl
+  })
+});
   }
 
   toast("Pedido criado. O Flow (Power Automate) vai tratar das aprovações.");

@@ -752,8 +752,7 @@ async function submitDecision(pedidoId, decision, comment){
   {
     method: "PATCH",
     body: JSON.stringify({
-      EstadoGlobal: novoEstado,
-      DataResposta: new Date().toISOString()
+      EstadoGlobal: novoEstado
     })
   }
 );

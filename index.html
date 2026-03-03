@@ -998,7 +998,7 @@ const up = await fetch(uploadUrl, {
       throw new Error(`Upload falhou: ${up.status} ${txt}`);
     }
     const fileInfo = await up.json();
-    anexoWebUrl = fileInfo.webUrl || "";
+    anexoWebUrl = fileInfo.webUrl || fileInfo["@microsoft.graph.downloadUrl"] || "";
 
     // 3) guardar link do anexo no item
 await graph(`/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, {

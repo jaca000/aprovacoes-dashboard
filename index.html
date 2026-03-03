@@ -704,19 +704,20 @@ async function submitDecision(pedidoId, decision, comment){
   const cleanComment = String(comment||"").trim();
 
   // 1️⃣ Guardar resposta
-  await graph(`/sites/${siteId}/lists/${respListId}/items`, {
-    method: "POST",
-    body: JSON.stringify({
-      fields: {
-        Title: `Resposta pedido ${pedidoId}`,
-        PedidoID: Number(pedidoId),
-        AprovadorEmail: String(currentUser.email || "").toLowerCase(),
-        AprovadorNome: currentUser.name,
-        Decisao: decision,
-        Comentario: cleanComment
-      }
-    })
-  });
+await graph(`/sites/${siteId}/lists/${respListId}/items`, {
+  method: "POST",
+  body: JSON.stringify({
+    fields: {
+      Title: `Resposta pedido ${pedidoId}`,
+      PedidoID: Number(pedidoId),
+      AprovadorEmail: String(currentUser.email || "").toLowerCase(),
+      AprovadorNome: currentUser.name,
+      Decisao: decision,
+      Comentario: cleanComment,
+      DataResposta: new Date().toISOString()   // 👈 AQUI
+    }
+  })
+});
 
   // 2️⃣ Buscar pedido atualizado
   const pedidoResp = await graph(

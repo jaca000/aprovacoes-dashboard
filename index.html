@@ -534,12 +534,22 @@ if (it.id) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${esc(it.id)}</td>
-      <td><a class="link" href="#" data-id="${esc(it.id)}">${esc(title)}</a></td>
-      <td>${statusPill(estado)}</td>
-      <td>${anexoUrl ? `<a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a>` : `<span class="k">—</span>`}</td>
-    tbody.appendChild(tr);
-  }
+  <td>${esc(it.id)}</td>
+  <td><a class="link" href="#" data-id="${esc(it.id)}">${esc(title)}</a></td>
+  <td>${statusPill(estado)}</td>
+  <td>
+    ${anexoUrl 
+      ? `<a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a>` 
+      : `<span class="k">—</span>`
+    }
+  </td>
+  <td>
+    ${dataResp 
+      ? `<span class="k">${esc(dataResp)}</span>` 
+      : `<span class="k">—</span>`
+    }
+  </td>
+`;
 
   tbody.querySelectorAll("a[data-id]").forEach(a=>{
     a.addEventListener("click", (e)=>{

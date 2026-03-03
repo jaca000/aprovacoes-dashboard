@@ -689,15 +689,17 @@ async function submitDecision(pedidoId, decision, comment){
     method: "POST",
     body: JSON.stringify({
       fields: {
-  Title: `Resposta pedido ${pedidoId}`,
-  PedidoID: Number(pedidoId),
-  AprovadorEmail: String(currentUser.email || "").toLowerCase(),
-  AprovadorNome: currentUser.name,
-  Decisao: decision,
-  Comentario: cleanComment
-}
+        Title: `Resposta pedido ${pedidoId}`,
+        PedidoID: Number(pedidoId),
+        AprovadorEmail: String(currentUser.email || "").toLowerCase(),
+        AprovadorNome: currentUser.name,
+        Decisao: decision,
+        Comentario: cleanComment
+      }
     })
   });
+
+}
  
 // 2️⃣ Buscar respostas reais
 const respostas = await getRespostasDoPedido(pedidoId);

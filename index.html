@@ -701,53 +701,24 @@ async function submitDecision(pedidoId, decision, comment){
 
 }
  
-// 2️⃣ Buscar respostas reais
-const respostas = await getRespostasDoPedido(pedidoId);
+async function submitDecision(pedidoId, decision, comment){
+  await ensureContext();
 
-const algumaRejeicao = respostas.some(r =>
-  String(r.decisao).toLowerCase().includes("rejeit")
-);
+  const cleanComment = String(comment||"").trim();
 
-const totalRespostas = respostas.length;
-
-// 3️⃣ Definir novo estado
-let novoEstado = "Pendente";
-
-if (algumaRejeicao) {
-  novoEstado = "Rejeitado";
-}
-else if (totalAprovadores > 0 && totalRespostas >= totalAprovadores) {
-  novoEstado = "Aprovado";
-}
-
-// 4️⃣ Atualizar pedido principal
-await graph(
-  `/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`,
-  {
-    method: "PATCH",
+  await graph(`/sites/${siteId}/lists/${respListId}/items`, {
+    method: "POST",
     body: JSON.stringify({
-      EstadoGlobal: novoEstado
+      fields: {
+        Title: `Resposta pedido ${pedidoId}`,
+        PedidoID: Number(pedidoId),
+        AprovadorEmail: String(currentUser.email || "").toLowerCase(),
+        AprovadorNome: currentUser.name,
+        Decisao: decision,
+        Comentario: cleanComment
+      }
     })
-  }
-);
-
-const totalRespostas = respostas.length;
-
-let novoEstado = "Pendente";
-
-if(algumaRejeicao){
-  novoEstado = "Rejeitado";
-}else if(totalAprovadores > 0 && totalRespostas >= totalAprovadores){
-  novoEstado = "Aprovado";
-}
-
-// atualizar pedido principal
-await graph(`/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`, {
-  method: "PATCH",
-  body: JSON.stringify({
-    EstadoGlobal: novoEstado
-  })
-});
+  });
 }
 async function createItemAndUpload(){
   await ensureContext();

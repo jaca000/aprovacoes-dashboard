@@ -698,25 +698,7 @@ async function submitDecision(pedidoId, decision, comment){
 }
     })
   });
-  // 🔄 Recalcular EstadoGlobal
-
-const respostas = await getRespostasDoPedido(pedidoId);
-
-const algumaRejeicao = respostas.some(r =>
-  String(r.decisao).toLowerCase().includes("rejeit")
-);
-
-// 🔄 Recalcular EstadoGlobal com dados frescos
-
-// 1️⃣ Buscar pedido diretamente do SharePoint (dados atualizados)
-const pedidoResp = await graph(
-  `/sites/${siteId}/lists/${listId}/items/${pedidoId}?expand=fields`
-);
-
-const pedidoFields = pedidoResp.fields || {};
-const listaAprovadores = splitApprovers(pedidoFields.EmailsAprovadores || "");
-const totalAprovadores = listaAprovadores.length;
-
+ 
 // 2️⃣ Buscar respostas reais
 const respostas = await getRespostasDoPedido(pedidoId);
 

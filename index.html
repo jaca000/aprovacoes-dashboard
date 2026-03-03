@@ -748,9 +748,7 @@ function attachDetailListeners(){
   $("detailEmpty").style.display = "none";
   $("detail").style.display = "block";
 
-  const anexoUrl = it.id
-    ? `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`
-    : "";
+  const anexoUrl = f.PastaAnexosUrl || "";
 
   const aprov = f.EmailsAprovadores || "";
   const desc = f.Descricao || "";

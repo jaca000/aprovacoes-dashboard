@@ -506,7 +506,8 @@ function renderTable(items){
     const f = it.fields || {};
     const creator = String(f.CriadoPorEmail || "").toLowerCase();
     const approvers = String(f.EmailsAprovadores || "").toLowerCase();
-
+const isCreator = creator === me;
+const isApprover = approvers.includes(me);
     return (creator && creator === me) || 
            (approvers && approvers.includes(me));
   });

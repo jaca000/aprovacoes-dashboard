@@ -748,12 +748,13 @@ await graph(`/sites/${siteId}/lists/${respListId}/items`, {
   }
 
   // 5️⃣ Atualizar pedido principal
-  await graph(
+await graph(
   `/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`,
   {
     method: "PATCH",
     body: JSON.stringify({
-      EstadoGlobal: novoEstado
+      EstadoGlobal: novoEstado,
+      DataResposta: new Date().toISOString() // 👈 ADICIONAR ISTO
     })
   }
 );

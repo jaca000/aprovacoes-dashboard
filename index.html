@@ -166,13 +166,24 @@
 .section-divider{
   margin: 28px 0 16px 0;
   padding: 10px 14px;
-  background: linear-gradient(90deg, rgba(58,125,44,.15), rgba(58,125,44,.05));
-  border-left: 4px solid var(--primary);
   border-radius: 10px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--primary-dark);
   letter-spacing: .4px;
+}
+
+/* Criados por mim */
+.section-divider.neutral{
+  background: linear-gradient(90deg, rgba(30,41,59,.08), rgba(30,41,59,.03));
+  border-left: 4px solid #334155;
+  color: #334155;
+}
+
+/* Recebidos para aprovação */
+.section-divider.success{
+  background: linear-gradient(90deg, rgba(58,125,44,.15), rgba(58,125,44,.05));
+  border-left: 4px solid var(--primary);
+  color: var(--primary-dark);
 }
 
 .approval-group{

@@ -224,7 +224,7 @@
               <th>Título</th>
               <th>Estado</th>
               <th>Anexo</th>
-              <th>Respostas</th>
+              <th>Última resposta</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -523,11 +523,14 @@ function renderTable(items){
     const f = it.fields;
     const title = f.Title || "";
     const estado = f.EstadoGlobal || "Pendente";
+    const dataResp = f.DataResposta
+  ? new Date(f.DataResposta).toLocaleString("pt-PT")
+  : "";
     let anexoUrl = "";
 if (it.id) {
   anexoUrl = `https://${CONFIG.spHostname}/PedidosAprovacaoAnexos/Aprovacoes/${it.id}`;
 }
-    const respostas = stripHtmlToText(f.RespostasResumo || "");
+    
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -535,8 +538,7 @@ if (it.id) {
       <td><a class="link" href="#" data-id="${esc(it.id)}">${esc(title)}</a></td>
       <td>${statusPill(estado)}</td>
       <td>${anexoUrl ? `<a class="link" href="${esc(anexoUrl)}" target="_blank" rel="noopener">Ver anexo</a>` : `<span class="k">—</span>`}</td>
-      <td>${respostas ? `<span class="k">${esc(String(respostas).slice(0,80))}${String(respostas).length>80?"…":""}</span>` : `<span class="k">—</span>`}</td>
-    `;
+      ;
     tbody.appendChild(tr);
   }
 
@@ -730,14 +732,15 @@ async function submitDecision(pedidoId, decision, comment){
 
   // 5️⃣ Atualizar pedido principal
   await graph(
-    `/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        EstadoGlobal: novoEstado
-      })
-    }
-  );
+  `/sites/${siteId}/lists/${listId}/items/${pedidoId}/fields`,
+  {
+    method: "PATCH",
+    body: JSON.stringify({
+      EstadoGlobal: novoEstado,
+      DataResposta: new Date().toISOString()
+    })
+  }
+);
 }
 async function createItemAndUpload(){
   await ensureContext();

@@ -547,16 +547,6 @@ async function renderTable(items){
   await renderAprovacoes(paraAprovar);
 }
 
-  // 👇 EVENT LISTENERS FICAM AQUI, FORA DO LOOP
-  tbody.querySelectorAll("a[data-id]").forEach(a=>{
-    a.addEventListener("click", (e)=>{
-      e.preventDefault();
-      const id = a.getAttribute("data-id");
-      const it = (window.__items || []).find(x => x.id === id);
-      if(it) renderDetail(it);
-    });
-  });
-}
 
 async function renderDetail(it){
   const f = it.fields || {};

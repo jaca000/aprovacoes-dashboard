@@ -397,7 +397,7 @@ spResponsesListName: "PedidosAprovacaoRespostas",
 /* ==========================
    UI helpers
    ========================== */
-const $ = (id) => document.getElementById(id);
+const el = (id) => document.getElementById(id);
 function toast(msg){
   const t = $("toast");
   t.textContent = msg;
@@ -664,29 +664,28 @@ function renderCriados(items){
   }
 
   document.getElementById("tblCreator").style.display = "table";
-if ($.fn.DataTable.isDataTable('#tblCreator')) {
-  $('#tblCreator').DataTable().destroy();
-}
-  for(const it of items){
 
-  const f = it.fields || {};
-  const texto = (f.Title || "").toLowerCase();
+  // ✅ pesquisa (fora do loop)
+  const search = (document.getElementById("searchCreated")?.value || "").toLowerCase();
 
-  if(search && !texto.includes(search)){
-    continue;
+  // ✅ se já houver DataTable, destruir antes de mexer no tbody
+  if (window.jQuery && jQuery.fn.DataTable && jQuery.fn.DataTable.isDataTable('#tblCreator')) {
+    jQuery('#tblCreator').DataTable().destroy();
   }
 
-    const f = it.fields;
-    const estado = f.EstadoGlobal || "Pendente";
+  for(const it of items){
+    const f = it.fields || {};
+    const texto = (f.Title || "").toLowerCase();
 
-    const dataResp = f.DataResposta
-      ? new Date(f.DataResposta).toLocaleString("pt-PT")
-      : "—";
+    if(search && !texto.includes(search)){
+      continue;
+    }
+
+    const estado = f.EstadoGlobal || "Pendente";
+    const dataResp = f.DataResposta ? new Date(f.DataResposta).toLocaleString("pt-PT") : "—";
 
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
-    const search = document.getElementById("searchCreated")?.value?.toLowerCase() || "";
       <td>${it.id}</td>
       <td><a class="link" href="#" data-id="${it.id}">${f.Title || ""}</a></td>
       <td>${statusPill(estado)}</td>
@@ -697,22 +696,23 @@ if ($.fn.DataTable.isDataTable('#tblCreator')) {
   }
 
   attachDetailListeners();
+
+  // ✅ re-inicializar DataTable
   setTimeout(() => {
-  $('#tblCreator').DataTable({
-    pageLength: 10,
-    lengthMenu: [10, 20, 50, 100],
-    order: [[0, "desc"]],
-    language: {
-      search: "Procurar:",
-      lengthMenu: "Mostrar _MENU_ pedidos",
-      info: "A mostrar _START_ a _END_ de _TOTAL_ pedidos",
-      paginate: {
-        next: "Seguinte",
-        previous: "Anterior"
-      }
+    if (window.jQuery && jQuery.fn.DataTable){
+      jQuery('#tblCreator').DataTable({
+        pageLength: 10,
+        lengthMenu: [10, 20, 50, 100],
+        order: [[0, "desc"]],
+        language: {
+          search: "Procurar:",
+          lengthMenu: "Mostrar _MENU_ pedidos",
+          info: "A mostrar _START_ a _END_ de _TOTAL_ pedidos",
+          paginate: { next: "Seguinte", previous: "Anterior" }
+        }
+      });
     }
-  });
-}, 50);
+  }, 0);
 }
 async function renderAprovacoes(items){
 document.getElementById("badgeReceived").textContent = items.length;

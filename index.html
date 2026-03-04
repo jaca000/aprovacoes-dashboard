@@ -748,7 +748,7 @@ function attachDetailListeners(){
   $("detailEmpty").style.display = "none";
   $("detail").style.display = "block";
 
-  const anexoUrl = f.PastaAnexosUrl || "";
+  const anexoUrl = f.AnexosUrl || "";
 
   const aprov = f.EmailsAprovadores || "";
   const desc = f.Descricao || "";
@@ -1004,7 +1004,7 @@ const up = await fetch(uploadUrl, {
 await graph(`/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, {
   method: "PATCH",
   body: JSON.stringify({
-    PastaAnexosUrl: anexoWebUrl
+    AnexosUrl: anexoWebUrl
   })
 });
   }

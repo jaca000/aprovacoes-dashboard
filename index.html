@@ -677,6 +677,7 @@ if ($.fn.DataTable.isDataTable('#tblCreator')) {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
+    const search = document.getElementById("searchCreated")?.value?.toLowerCase() || "";
       <td>${it.id}</td>
       <td><a class="link" href="#" data-id="${it.id}">${f.Title || ""}</a></td>
       <td>${statusPill(estado)}</td>

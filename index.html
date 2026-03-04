@@ -1133,6 +1133,13 @@ setLoggedInState(true, `${currentUser.name} — ${currentUser.email}`);
   $("btnLogout").addEventListener("click", ()=>logout().catch(e=>toast(e.message)));
   $("btnRefresh").addEventListener("click", ()=>loadItems().catch(e=>toast(e.message)));
   $("btnCreate").addEventListener("click", ()=>createItemAndUpload().catch(e=>toast(e.message)));
+  const searchInput = document.getElementById("searchCreated");
+
+if(searchInput){
+  searchInput.addEventListener("input", ()=>{
+    renderCriados(window.__items || []);
+  });
+}
   function updateClock(){
   const el = document.getElementById("now");
   if(!el) return;

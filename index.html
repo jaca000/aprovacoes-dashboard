@@ -857,18 +857,27 @@ if (isApprover) {
     });
 
     document.getElementById("btnReject").addEventListener("click", async () => {
-      try{
-        const comment = document.getElementById("decisionComment")?.value || "";
-        toast("A gravar...");
-        await submitDecision(it.id, "Rejeitado", comment);
-        toast("Rejeitado ❌");
-        await loadItems();
-        await renderDetail(it);
-      }catch(e){
-        console.error(e);
-        toast("ERRO: " + (e?.message || e));
-      }
-    });
+  try{
+    const comment = document.getElementById("decisionComment")?.value.trim() || "";
+
+    if(!comment){
+      toast("Para rejeitar o pedido é obrigatório escrever um comentário.");
+      document.getElementById("decisionComment").focus();
+      return;
+    }
+
+    toast("A gravar...");
+    await submitDecision(it.id, "Rejeitado", comment);
+    toast("Rejeitado ❌");
+
+    await loadItems();
+    await renderDetail(it);
+
+  }catch(e){
+    console.error(e);
+    toast("ERRO: " + (e?.message || e));
+  }
+});
   }
 }
 async function submitDecision(pedidoId, decision, comment){

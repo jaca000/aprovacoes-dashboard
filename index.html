@@ -680,6 +680,22 @@ if ($.fn.DataTable.isDataTable('#tblCreator')) {
   }
 
   attachDetailListeners();
+  setTimeout(() => {
+  $('#tblCreator').DataTable({
+    pageLength: 10,
+    lengthMenu: [10, 20, 50, 100],
+    order: [[0, "desc"]],
+    language: {
+      search: "Procurar:",
+      lengthMenu: "Mostrar _MENU_ pedidos",
+      info: "A mostrar _START_ a _END_ de _TOTAL_ pedidos",
+      paginate: {
+        next: "Seguinte",
+        previous: "Anterior"
+      }
+    }
+  });
+}, 50);
 }
 async function renderAprovacoes(items){
 document.getElementById("badgeReceived").textContent = items.length;

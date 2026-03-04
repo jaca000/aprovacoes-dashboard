@@ -667,6 +667,13 @@ if ($.fn.DataTable.isDataTable('#tblCreator')) {
 }
   for(const it of items){
 
+  const f = it.fields || {};
+  const texto = (f.Title || "").toLowerCase();
+
+  if(search && !texto.includes(search)){
+    continue;
+  }
+
     const f = it.fields;
     const estado = f.EstadoGlobal || "Pendente";
 

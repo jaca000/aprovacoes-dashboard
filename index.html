@@ -655,7 +655,9 @@ function renderCriados(items){
   }
 
   document.getElementById("tblCreator").style.display = "table";
-
+if ($.fn.DataTable.isDataTable('#tblCreator')) {
+  $('#tblCreator').DataTable().destroy();
+}
   for(const it of items){
 
     const f = it.fields;
